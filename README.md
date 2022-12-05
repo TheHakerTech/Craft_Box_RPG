@@ -43,7 +43,8 @@
 
 ## ✍️ Авторы <a name = "authors"></a>
 
-- [@TheHakerTech](https://github.com/TheHakerTech) - Основная идея
+- [@TheHakerTech](https://github.com/TheHakerTech) - Основная идея и разработка
+- [@MaksimKoreshkin](https://github.com/MaksimKoreshkin) - Основная идея и разработка
 - [@kotazzz](https://github.com/kotazzz) - Помощь в разработке
 
 Смотрите полный список [контрибуторов](https://github.com/TheHakerTech/Craft_Box_RPG/contributors), кто вложил свой вклад в проект
