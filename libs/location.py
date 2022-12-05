@@ -4,7 +4,8 @@ Module with class for location - Location
 """
 locations_dict = {}
 
-class BasicLocation():
+
+class BasicLocation:
     def __init__(self):
         """
         Busic class for locations. Parameters:
@@ -16,10 +17,15 @@ class BasicLocation():
         self.name = "basic"
 
 
-class Location():
-    def __init__(self, name: str, 
-                 entities: list or tuple, hardlevel: int,
-                 description, underlocs=list(),):
+class Location:
+    def __init__(
+        self,
+        name: str,
+        entities: list or tuple,
+        hardlevel: int,
+        description,
+        underlocs=list(),
+    ):
         """
         Busic class for locations. Parameters:
         -`name` str location name
@@ -37,7 +43,7 @@ class Location():
         self.ent_names = list()
         for ent in self.entities:
             self.ent_names.append(ent.name.lower())
-        
+
         self.hardlevel = hardlevel
         self.description = description
         locations_dict[self.name.lower()] = self

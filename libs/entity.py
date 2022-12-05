@@ -6,23 +6,23 @@ entities_dict = {}
 """
 Module with class for entity - Entity
 """
-class EntType():
+
+
+class EntType:
     BOSS = "boss"
     NPC = "NPC"
 
 
-
-class NoPlayableEntity():
-    def __init__(self, name: str, 
-                 dialog: list or tuple,
-                 identifier: EntType, description):
+class NoPlayableEntity:
+    def __init__(
+        self, name: str, dialog: list or tuple, identifier: EntType, description
+    ):
         self.name = name
         self.dialog = dialog
         self.description = description
         self.identifier = identifier
         self.dialog_index = 0
         entities_dict[self.name.lower()] = self
-
 
     def start_dialog(self):
         if self.dialog_index >= len(self.dialog):
@@ -36,14 +36,20 @@ class NoPlayableEntity():
         self.dialog_index += 1
 
 
-class PlayableEntity():
-    def __init__(self, xp: float,
-                 dialog: list or tuple,
-                 name: str, armors: list or tuple,
-                 description, block_damage,
-                 skills: list or tuple,
-                 shild: items.Shield,
-                 identifier: EntType, after_death=None):
+class PlayableEntity:
+    def __init__(
+        self,
+        xp: float,
+        dialog: list or tuple,
+        name: str,
+        armors: list or tuple,
+        description,
+        block_damage,
+        skills: list or tuple,
+        shild: items.Shield,
+        identifier: EntType,
+        after_death=None,
+    ):
         """
         Busic class for all entities. Parameters:
         -`xp` float entity xp
@@ -55,15 +61,15 @@ class PlayableEntity():
         All parameters are requared
         """
         # Init params
-        self.xp           = xp
-        self.name         = name
-        self.shild        = shild
-        self.skills       = skills
-        self.after_death  = after_death
-        self.armors       = armors
-        self.description  = description
-        self.identifier   = identifier
-        self.attack       = random.choice(self.skills)
+        self.xp = xp
+        self.name = name
+        self.shild = shild
+        self.skills = skills
+        self.after_death = after_death
+        self.armors = armors
+        self.description = description
+        self.identifier = identifier
+        self.attack = random.choice(self.skills)
         # Reinit params with changes
         self.block_damage = sum(self.armors)
         entities_dict[self.name.lower()] = self
@@ -73,8 +79,6 @@ class PlayableEntity():
             for les in self.dialog:
                 print(les)
                 input()
-    
-
 
     def death_event(self, after_death):
         if after_death != None:
@@ -101,11 +105,14 @@ class PlayableEntity():
         if self.xp <= 0:
             death_event(after_death)
 
-
-
     def doc(self):
         return str(self.description)
-        
-class AllEntities():
-    moat_npc = NoPlayableEntity("Моат", (("О, странник!", "Ищешь ли ты смерти?", "Или же вершить судьбу ты призван?"),),
-        EntType.NPC, "Старый рыцарь")
+
+
+class AllEntities:
+    moat_npc = NoPlayableEntity(
+        "Моат",
+        (("О, странник!", "Ищешь ли ты смерти?", "Или же вершить судьбу ты призван?"),),
+        EntType.NPC,
+        "Старый рыцарь",
+    )
