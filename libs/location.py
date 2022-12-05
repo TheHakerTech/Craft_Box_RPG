@@ -40,7 +40,7 @@ class Location():
         
         self.hardlevel = hardlevel
         self.description = description
-        locations_dict[self.name] = self
+        locations_dict[self.name.lower()] = self
 
     def doc(self):
         return str(self.description)

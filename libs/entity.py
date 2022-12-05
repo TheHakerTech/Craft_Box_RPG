@@ -21,7 +21,7 @@ class NoPlayableEntity():
         self.description = description
         self.identifier = identifier
         self.dialog_index = 0
-        entities_dict[self.name] = self
+        entities_dict[self.name.lower()] = self
 
 
     def start_dialog(self):
@@ -66,7 +66,7 @@ class PlayableEntity():
         self.attack       = random.choice(self.skills)
         # Reinit params with changes
         self.block_damage = sum(self.armors)
-        entities_dict[self.name] = self
+        entities_dict[self.name.lower()] = self
 
     def start_dialog(self):
         if self.dialog_index > len(self.dialog):

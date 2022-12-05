@@ -5,8 +5,13 @@ from libs.entity import AllEntities
 import libs.items as items
 from libs.items import AllItems
 import libs.location as location
+from rich.console import Console
+from rich.progress import track
+import time
 
 LEN_LINE = 15*3
+console = Console()
+name = "RPG"
 RPG = f"""
 {c.br(c.red("================"))}{c.br(c.blue("==============="))}{c.br(c.yellow("================"))}
 {c.br(c.red("=┏━━━━━━━━━━━┓=="))}{c.br(c.blue("=┏━━━━━━━━━━━┓="))}{c.br(c.yellow("=┏━━━━━━━━━━━┓=="))}
@@ -77,17 +82,14 @@ class Game:
 
     def main_menu(self):
         print(c.br(c.blue("="*LEN_LINE)))
-        print(c.yellow("Привет добро пожаловать в RPG! Загрузи сохранение или создай новое."))
-        print(c.br(c.red("1.Загрузить сохранение\n2.Последние сохранение\n3.Новое сохранение\n4.Выход (Ctrl+C)")))
+        console.print(f"[bold green]Привет добро пожаловать в {name}! Загрузи сохранение или создай новое.")
+        for num, chapter in enumerate(["[bold yellow]"+ch for ch in ("Загрузить сохранение", "Последние сохранение", "Новое сохранение", "Выход (Ctrl+C)")], 1):
+            console.print("{0}.{1}".format("[red]"+str(num)+"[/red]", chapter))
 
     def loading(self):
-        for i in range(16):
-            print((c.br(c.red("━"))), end="")
-        for i in range(15):
-            print((c.br(c.blue("━"))), end="")
-        for i in range(16):
-            print((c.br(c.yellow("━"))), end="")
-        print("\n")
+        """for _ in track(range(100), description='[green]Processing data'):
+            time.sleep(0.1)"""
+        pass
 
 class Player(entity.PlayableEntity):
     def __init__(self, xp: float, damage: float,
@@ -150,7 +152,7 @@ class Save(AllItems):
                             ent_names_dict[str(self.choice).lower()].start_dialog()
                         elif ent_names_dict[str(self.choice).lower()].identifier == entity.EntType.BOSS:
                             ent_names_dict[str(self.choice).lower()].start_dialog()
-                            print("Сразится с {0} [y/n]".format(ent_names_dict[str(self.choice).lower()].name))
+                            console.print(f"Сразится с {ent_names_dict[str(self.choice).lower()].name}? [y/n]")
                             answer = str
                         self.show_locations()
 
@@ -166,35 +168,28 @@ class Save(AllItems):
         # Если есть подлокации
         if self.total_location.underlocs != list() or self.total_location.underlocs != tuple():
             # Показать текущию
-            print("Текущая локация: {0}".format(self.total_location.name))
+            console.print(f"[bold yellow]Текущая локация[/bold yellow][red]:[/red] [bold white]{self.total_location.name}")
             # Показать подлакации
-            print("Подлокации: (<имя_локации> чтобы идти в локацию)")
+            console.print("[bold yellow]Подлокации[/bold yellow][red]:[/red] (<имя_локации> чтобы идти в локацию)")
             for under_loc in self.total_location.underlocs: # Циклом перебераем подлокации
-                print("{0}. {1}".format(under_loc.name, under_loc.description))
-            print("{0}. (Выход)".format(self.total_location.parent.name))
-        else: # Если подлокаций нет
-            # Показать текущию
-            print("Текущая локация: {0}".format(self.total_location.name))
-            # Показать то что подлакаций нет
-            print("Подлокации: нету подлокаций (<имя_локации> чтобы идти в локацию)")
+                console.print(f"[bold white]{under_loc.name}[/bold white] [bold yellow]{under_loc.description}[/bold yellow]")
+            console.print(f"[bold white]{self.total_location.parent.name}[/bold white] (Выход)")
         # Вывод существ
         # Проверяем, есть ли существа в текущей локации
         if self.total_location.entities != list() or self.total_location.entities != tuple():
-            print("Существа: (<имя_существа> чтобы поговорить\сразится)")
+            console.print(f"[bold yellow]Сушества[/bold yellow][red]:[/red]")
             for ent in self.total_location.entities:
-                print("{0}. {1}. {2}".format(ent.name, ent.identifier, ent.description))
-            
-        else:
-            print("Существа: Нет существ (<имя_существа> чтобы поговорить\сразится)")
+                console.print(f"[bold white]{ent.name} {ent.identifier}[/bold white] [bold yellow]{ent.description}[/bold yellow]")
 
     def inventory(self):
-        print("Вещи")
+        console.print("[bold red]Вещи")
         for item in self.player.items:
-            print("{0}. {1}. {2}".format(c.br(c.red(item.name)), c.br(c.blue(item.description)),
-            c.br(c.blue(item.interesting))))
+            console.print(f"[bold white]{item.name}[/bold white] [blue]{item.description}.[/blue] [yellow]{item.interesting}[/yellow]")
 
     def menu(self):
-        print(c.br(c.red("1.Вещи\n2.Доступные локации\n3.Навыки\n4.Сохранить\n")))
+        for num, chapter in enumerate(["[bold yellow]"+ch for ch in ("Вещи", "Доступные локации", "Навыки", "Сохранить", "Выход (Ctrl+C)")], 1):
+            console.print("{0}.{1}".format("[red]"+str(num)+"[/red]", chapter))
+
         self.choice = str(Input(c.br(c.red("> ")), correct=lambda x: str(x) in ["1","2","3","4"]+self.total_location.names+
             self.total_location.ent_names+[self.total_location.parent.name])).lower()
 while True:
