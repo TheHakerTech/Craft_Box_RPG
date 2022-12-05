@@ -13,7 +13,7 @@ class EntType:
     NPC = "NPC"
 
 
-class NoPlayableEntity:
+class NotPlayableEntity:
     def __init__(
         self, name: str, dialog: list or tuple, identifier: EntType, description
     ):
@@ -110,7 +110,7 @@ class PlayableEntity:
 
 
 class AllEntities:
-    moat_npc = NoPlayableEntity(
+    moat_npc = NotPlayableEntity(
         "Моат",
         (("О, странник!", "Ищешь ли ты смерти?", "Или же вершить судьбу ты призван?"),),
         EntType.NPC,

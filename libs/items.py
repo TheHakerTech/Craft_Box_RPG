@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 import random
 
 """
@@ -23,15 +24,8 @@ class Weapon:
         return str(self.description)
 
 
-class _Armor:
-    def __init__(self, name: str, block_damage: float, description, interesting=""):
-        self.name = name
-        self.block_damage = block_damage
-        self.description = description
-        self.interesting = interesting
+class Armor:
 
-
-class Armor(_Armor):
     def __init__(self, name: str, block_damage: float, description, interesting=""):
         self.name = name
         self.block_damage = block_damage
@@ -41,7 +35,7 @@ class Armor(_Armor):
     def doc(self):
         return str(self.description)
 
-    def __add__(self, armor):
+    def __add__(self, armor: Armor):
         return self.block_damage + armor.block_damage
 
     def __radd__(self, armor):
@@ -53,15 +47,11 @@ class Shield:
         self, name: str, lb_block_chance, description, controle="", interesting=""
     ):
         self.name = name
-        self.block = None
         self.description = description
         self.controle = controle
         self.interesting = interesting
         self.lb_block_chance = lb_block_chance
-        if self.lb_block_chance():
-            self.block = True
-        else:
-            self.block = False
+        self.update_shield()
 
     def update_shield(self):
         if self.lb_block_chance():
@@ -72,10 +62,10 @@ class Shield:
     def doc(self):
         return str(self.description)
 
-    def __add__(self, armor: _Armor):
+    def __add__(self, armor: Armor):
         return self.block_damage + armor.block_damage
 
-    def __radd__(self, armor: _Armor):
+    def __radd__(self, armor: Armor):
         return armor.block_damage + self.block_damage
 
 
@@ -88,7 +78,7 @@ class Item:
 
 # Set items
 class AllItems:
-    ### Weapons
+    # Weapons
     # Middle
     old_sword = Weapon(
         "Старый гвоздь",
@@ -114,14 +104,15 @@ class AllItems:
     striking_nail = Weapon(
         "Разящий гвоздь", 4.0, "Длинный увесистый гвоздь. Разит на повал, но медленный"
     )
-    the_blockhead = Weapon("Дубина", 4.3, "Дубина - хорошое оружие в ближнем бою")
+    the_blockhead = Weapon(
+        "Дубина", 4.3, "Дубина - хорошое оружие в ближнем бою")
 
-    ### Armors
+    # Armors
     busic_shell = Armor(
         "Панцирь", 0.2, "Плохо сдержавает удары", interesting="Создан природой"
     )
 
-    ### Items
+    # Items
     cape = Item(
         "Накидка", "Кое-как спасает от ветра", interesting="Развивается на ветру"
     )
