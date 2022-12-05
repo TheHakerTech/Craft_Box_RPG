@@ -61,7 +61,7 @@ class PlayableEntity:
         All parameters are requared
         """
         # Init params
-        self.xp = xp
+        self.hp = xp
         self.name = name
         self.shild = shild
         self.skills = skills
@@ -96,14 +96,14 @@ class PlayableEntity:
             if self.shield.block:
                 pass
             else:
-                self.xp -= self.weapon.damage - self.block_damage
+                self.hp -= self.weapon.damage - self.block_damage
                 dmg = False
         elif self.attack is items.Weapon:
             return self.attack.damage
         if dmg:
-            self.xp -= self.weapon.damage - self.block_damage
-        if self.xp <= 0:
-            death_event(after_death)
+            self.hp -= self.weapon.damage - self.block_damage
+        if self.hp <= 0:
+            self.death_event(lambda: ["Смерть..."])
 
     def doc(self):
         return str(self.description)
