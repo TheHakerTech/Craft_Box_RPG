@@ -38,8 +38,8 @@ class Armor:
     def __add__(self, armor: Armor):
         return self.block_damage + armor.block_damage
 
-    def __radd__(self, armor):
-        return armor.block_damage + self.block_damage
+    """def __radd__(self, armor: Armor):
+        return armor.block_damage + self.block_damage"""
 
 
 class Shield:
@@ -111,6 +111,10 @@ class AllItems:
     busic_shell = Armor(
         "Панцирь", 0.2, "Плохо сдержавает удары", interesting="Создан природой"
     )
+    fire_shell = Armor(
+        "Огненный панцирь", 0, "", interesting=""
+    )
+    fire_sword = Weapon("Огненный гвоздь", 0.9, "Поражает врагов огнём...")
 
     # Items
     cape = Item(

@@ -13,15 +13,13 @@ LEN_LINE = 15 * 3
 console = Console()
 name = "RPG"
 RPG = f"""
-{c.br(c.red("================"))}{c.br(c.blue("==============="))}{c.br(c.yellow("================"))}
-{c.br(c.red("=┏━━━━━━━━━━━┓=="))}{c.br(c.blue("=┏━━━━━━━━━━━┓="))}{c.br(c.yellow("=┏━━━━━━━━━━━┓=="))}
-{c.br(c.red("=┃===┏━━━━┓==┃=="))}{c.br(c.blue("=┃===┏━━━━━┓ ┃="))}{c.br(c.yellow("=┃===┏━━━━━━━┛=="))}
-{c.br(c.red("=┃===┗━━━━┛==┃=="))}{c.br(c.blue("=┃===┗━━━━━┛ ┃="))}{c.br(c.yellow("=┃===┃=========="))}
-{c.br(c.red("=┃===━━━━━━┓━┛=="))}{c.br(c.blue("=┃===┏━━━━━━━┛="))}{c.br(c.yellow("=┃===┃ ┏━━━━━┓=="))}
-{c.br(c.red("=┃===┏━━━┓ ┗━━┓="))}{c.br(c.blue("=┃===┃========="))}{c.br(c.yellow("=┃===┃ ┗━━━┓ ┃=="))}
-{c.br(c.red("=┃===┃===┗━┓==┃="))}{c.br(c.blue("=┃===┃========="))}{c.br(c.yellow("=┃===┗━━━━━┛ ┃=="))}
-{c.br(c.red("=┗━━━┛=====┗━━┛="))}{c.br(c.blue("=┗━━━┛========="))}{c.br(c.yellow("=┗━━━━━━━━━━━┛=="))}
-{c.br(c.red("================"))}{c.br(c.blue("==============="))}{c.br(c.yellow("================"))}
+{"[bold red] ┏━━━━━━━━━━━┓  "}{"[bold blue] ┏━━━━━━━━━━━┓ "}{"[bold yellow] ┏━━━━━━━━━━━┓  "}
+{"[bold red] ┃   ┏━━━━┓  ┃  "}{"[bold blue] ┃   ┏━━━━━┓ ┃ "}{"[bold yellow] ┃   ┏━━━━━━━┛  "}
+{"[bold red] ┃   ┗━━━━┛  ┃  "}{"[bold blue] ┃   ┗━━━━━┛ ┃ "}{"[bold yellow] ┃   ┃          "}
+{"[bold red] ┃   ━━━━━━┓━┛  "}{"[bold blue] ┃   ┏━━━━━━━┛ "}{"[bold yellow] ┃   ┃ ┏━━━━━┓  "}
+{"[bold red] ┃   ┏━━━┓ ┗━━┓ "}{"[bold blue] ┃   ┃         "}{"[bold yellow] ┃   ┃ ┗━━━┓ ┃  "}
+{"[bold red] ┃   ┃   ┗━┓  ┃ "}{"[bold blue] ┃   ┃         "}{"[bold yellow] ┃   ┗━━━━━┛ ┃  "}
+{"[bold red] ┗━━━┛     ┗━━┛ "}{"[bold blue] ┗━━━┛         "}{"[bold yellow] ┗━━━━━━━━━━━┛  "}
 """
 
 
@@ -35,7 +33,7 @@ class Input:
         -`correct` lambda is cheacking mean before return
         """
         while True:
-            self._input = str(input(text)).lower()
+            self._input = str(console.input(text))
             if stop(self._input):
                 break
                 continue
@@ -64,7 +62,7 @@ tram_station = location.Location("Трамвайная станция", [], 0, "
 
 the_crossroads = location.Location(
     "Перепутье",
-    [],
+    [AllEntities.fire_boss],
     1,
     "Подземная дорога что ведёт в глубины королевства...",
     underlocs=[shop, tram_station],
@@ -79,16 +77,16 @@ ent_names_dict = entity.entities_dict
 
 class Game:
     def __init__(self):
-        print(RPG)
+        console.print(RPG)
         self.loading()
         self.main_menu()
         self.choice = str(
-            Input(c.br(c.red("> ")), correct=lambda x: str(x) in ("1", "2", "3", "4"))
+            Input("[bold red]> ", correct=lambda x: str(x) in ("1", "2", "3", "4"))
         )
         self.save = Save(game=self)
 
     def main_menu(self):
-        print(c.br(c.blue("=" * LEN_LINE)))
+        console.print("[bold blue]================================================")
         console.print(
             f"[bold green]Привет добро пожаловать в {name}! Загрузи сохранение или создай новое."
         )
@@ -121,15 +119,18 @@ class Player(entity.PlayableEntity):
         armors: list or tuple,
         weapons: list or tuple,
         items,
+        skills: dict,
         description,
         block_damage,
     ):
         # Init params
         self.xp = xp
+        self.full_xp = xp
         self.damage = damage
         self.name = name
         self.armors = armors
         self.description = description
+        self.skills = skills
         self.items = items
         # Reinit params with changes
         self.block_damage = 0
@@ -159,7 +160,8 @@ class Save(AllItems):
                 weapons=[self.old_sword],
                 description="Рыцарь, не помнящий ничего...",
                 block_damage=0.2,
-                items=(self.old_sword, self.cape, self.busic_shell),
+                skills={"X":(self.old_sword, "Удар гвоздём")},
+                items=[self.old_sword, self.cape, self.busic_shell],
             )
             while True:
                 # Выводим меню
@@ -169,7 +171,7 @@ class Save(AllItems):
                 elif self.choice == "2":  # Локации
                     self.show_locations()
                 elif self.choice == "3":
-                    pass
+                    self.show_skills()
                 elif self.choice == "4":
                     pass
                 else:
@@ -192,7 +194,38 @@ class Save(AllItems):
                             console.print(
                                 f"Сразится с {ent_names_dict[str(self.choice).lower()].name}? [y/n]"
                             )
-                            answer = str
+                            answer = str(Input(
+                                text="[bold red]> ",
+                                correct=lambda x: str(x) in ("y","n")
+                            ))
+                            if answer == "y":
+                                enemy = ent_names_dict[str(self.choice).lower()]
+                                console.print(f"[bold red]Введите аттаку[/bold red] ({self.show_skills()})\n")
+                                while not enemy.xp <= 0:
+                                    self.attack = str(Input(
+                                        text="[bold red]> ",
+                                        correct=lambda x: str(x).upper() in self.player.skills
+                                    )).upper()
+                                    enemy.update_attack()
+                                    a = enemy.hit(self.player.skills[self.attack][0])
+                                    b = self.player.hit(enemy.skills[enemy.attack][0])
+                                    console.print(
+                                        f"Вы нанесли: {a[1]} {round(enemy.xp, 1)}/{round(enemy.full_xp, 1)}"
+                                    )
+                                    console.print(
+                                        f"Вам нанесли: {b[1]} {round(self.player.xp, 1)}/{round(self.player.full_xp, 1)}"
+                                    )
+                                    if self.player.xp <= 0:
+                                        break
+                                else:
+                                    enemy.death_event(enemy.after_death)
+                                    console.print(f"Вы победили {enemy.name}")
+                                    console.print(f"Вы получили {enemy.drop.name} {enemy.drop.description}")
+                                    self.player.items.append(enemy.drop)
+                    
+                                    
+
+
                         self.show_locations()
 
                     if str(self.choice).lower() == self.total_location.parent.name:
@@ -201,6 +234,13 @@ class Save(AllItems):
 
         elif int(self.game.choice) == EXIT:
             raise KeyboardInterrupt
+
+    def show_skills(self):
+        for skill_name in self.player.skills:
+            console.print(f"{skill_name} - {self.player.skills[skill_name][0].name}. {self.player.skills[skill_name][1]}")
+            return f"{skill_name} - {self.player.skills[skill_name][0].name}. {self.player.skills[skill_name][1]}\n"
+
+
 
     def show_locations(self):
         # Если есть подлокации
@@ -212,7 +252,7 @@ class Save(AllItems):
             console.print(
                 f"[bold yellow]Текущая локация[/bold yellow][red]:[/red] [bold white]{self.total_location.name}"
             )
-            # Показать подлакации
+            # Показать подлокации
             console.print(
                 "[bold yellow]Подлокации[/bold yellow][red]:[/red] (<имя_локации> чтобы идти в локацию)"
             )
@@ -262,7 +302,7 @@ class Save(AllItems):
 
         self.choice = str(
             Input(
-                c.br(c.red("> ")),
+                "[bold red]> ",
                 correct=lambda x: str(x)
                 in ["1", "2", "3", "4"]
                 + self.total_location.names
@@ -277,10 +317,10 @@ while True:
         game = Game()
     except KeyboardInterrupt:
         print("^C")
-        print(c.br(c.red("Вы действительно хотите выйти?[y/n]")))
+        console.print("[bold red]Вы действительно хотите выйти?[/bold red][y/n]")
         is_exit = str(
             Input(
-                text=c.br(c.red("> ")), correct=lambda x: str(x).lower() in ("y", "n")
+                text="[bold red]> ", correct=lambda x: str(x).lower() in ("y", "n")
             )
         )
         if is_exit.lower() == "y":

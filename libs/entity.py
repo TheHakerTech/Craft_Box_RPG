@@ -15,7 +15,12 @@ class EntType:
 
 class NotPlayableEntity:
     def __init__(
-        self, name: str, dialog: list or tuple, identifier: EntType, description
+        self,
+        name: str,
+        dialog: list or tuple,
+        identifier: EntType,
+        description,
+        
     ):
         self.name = name
         self.dialog = dialog
@@ -49,6 +54,7 @@ class PlayableEntity:
         shild: items.Shield,
         identifier: EntType,
         after_death=None,
+        drop=None
     ):
         """
         Busic class for all entities. Parameters:
@@ -61,7 +67,8 @@ class PlayableEntity:
         All parameters are requared
         """
         # Init params
-        self.hp = xp
+        self.xp = xp
+        self.full_xp = xp
         self.name = name
         self.shild = shild
         self.skills = skills
@@ -69,16 +76,19 @@ class PlayableEntity:
         self.armors = armors
         self.description = description
         self.identifier = identifier
-        self.attack = random.choice(self.skills)
+        self.block_damage = block_damage
+        self.dialog = dialog
+        self.attack = None
+        self.drop = drop
         # Reinit params with changes
-        self.block_damage = sum(self.armors)
+        for armor in self.armors:
+            self.block_damage += armor.block_damage
         entities_dict[self.name.lower()] = self
 
     def start_dialog(self):
-        if self.dialog_index > len(self.dialog):
-            for les in self.dialog:
-                print(les)
-                input()
+        for les in self.dialog[0]:
+            print(les)
+            input()
 
     def death_event(self, after_death):
         if after_death != None:
@@ -87,23 +97,13 @@ class PlayableEntity:
                 input()
 
     def update_attack(self):
-        self.attack = random.choice(self.skills)
+        self.attack = random.choice([i for i in self.skills.keys()])
 
     def hit(self, weapon: items.Weapon):
-        dmg = True
-        if self.attack is items.Shield:
-            self.shield.update()
-            if self.shield.block:
-                pass
-            else:
-                self.hp -= self.weapon.damage - self.block_damage
-                dmg = False
-        elif self.attack is items.Weapon:
-            return self.attack.damage
-        if dmg:
-            self.hp -= self.weapon.damage - self.block_damage
-        if self.hp <= 0:
-            self.death_event(lambda: ["Смерть..."])
+        self.xp = self.xp + self.block_damage - weapon.damage
+        return (self.xp, weapon.damage - self.block_damage)
+        if self.xp <= 0:
+            self.death_event(self.after_death)
 
     def doc(self):
         return str(self.description)
@@ -115,4 +115,16 @@ class AllEntities:
         (("О, странник!", "Ищешь ли ты смерти?", "Или же вершить судьбу ты призван?"),),
         EntType.NPC,
         "Старый рыцарь",
+    )
+    fire_boss = PlayableEntity(
+        10.0,
+        (("О, странник!", "Ищешь ли ты смерти?", "Или же вершить судьбу ты призван?", "Нет", "Невозможно"),),
+        "Огненный",
+        [items.AllItems.fire_shell],
+        "Старый рыцарь",
+        0,
+        {"X":(items.AllItems.fire_sword, "Огонь...")},
+        items.AllItems.basic_shield,
+        EntType.BOSS,
+        drop=items.AllItems.fire_sword
     )
