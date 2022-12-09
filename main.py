@@ -369,6 +369,8 @@ class Save(AllItems):
             "   [blue]inv[/blue] - Вещи              (inv)",
             "  [blue]locs[/blue] - Доступные локации (locs)",
             "[blue]skills[/blue] - Навыки            (skills)",
+            "  [blue]talk[/blue] - Поговорить        (talk <номер персонажа>)",
+            " [blue]fight[/blue] - Сразиться         (fight)",
             "  [blue]save[/blue] - Сохранить         (save)",
             "    [blue]go[/blue] - Переместиться     (go <номер локации>)",
             "  [blue]exit[/blue] - Выход (Ctrl+C)    (выход)"
