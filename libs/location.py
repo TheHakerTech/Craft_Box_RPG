@@ -21,10 +21,10 @@ class Location:
     def __init__(
         self,
         name: str,
-        entities: list or tuple,
+        entities: dict,
         hardlevel: int,
         description,
-        underlocs=list(),
+        underlocs=dict()
     ):
         """
         Busic class for locations. Parameters:
@@ -35,14 +35,11 @@ class Location:
         """
         self.name = name.lower()
         self.underlocs = underlocs
-        self.names = list()
         self.parent = BasicLocation()
         self.entities = entities
-        for under_loc in self.underlocs:
-            self.names.append(under_loc.name.lower())
-        self.ent_names = list()
-        for ent in self.entities:
-            self.ent_names.append(ent.name.lower())
+        
+        self.ent_names = {str(k) : v for (k, v) in enumerate(self.entities.values(), 1)}
+        self.names = {str(k) : v for (k, v) in enumerate(self.underlocs.values(), 1)}
 
         self.hardlevel = hardlevel
         self.description = description
