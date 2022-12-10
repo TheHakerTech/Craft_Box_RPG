@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-from colors import TColors as c
+from colors import TColors as c #FIXME: remove this
 import libs.entity as entity
 from libs.entity import AllEntities
-import libs.items as items
+import libs.items as items #FIXME: remove this
 from libs.items import AllItems
 import libs.location as location
 from rich.console import Console
 from rich.progress import track
-import time
+import time #FIXME: remove this
 
 LEN_LINE = 15 * 3
 console = Console()
@@ -36,10 +36,10 @@ class Input:
             self._input = str(console.input(text))
             if stop(self._input):
                 break
-                continue
+                continue #FIXME: remove this
             elif correct(self._input):
                 break
-                continue
+                continue #FIXME: remove this
 
     def __int__(self):
         return int(self._input)
@@ -141,11 +141,11 @@ class Player(entity.PlayableEntity):
         damage: float,
         name: str,
         armors: list or tuple,
-        weapons: list or tuple,
+        weapons: list or tuple, #FIXME: never used
         items,
         skills: dict,
         description,
-        block_damage,
+        block_damage, #FIXME: never used
     ):
         # Init params
         self.xp = xp
@@ -166,7 +166,7 @@ class Player(entity.PlayableEntity):
 
 
 class Save(AllItems):
-    def __init__(self, game: Game):
+    def __init__(self, game: Game): # FIXME: too large init. split it
         self.game = game
         self.total_location = the_crossroads
         if self.game.choice == LOADSAVE:
@@ -358,7 +358,7 @@ class Save(AllItems):
             return f"{skill_name} - {self.player.skills[skill_name][0].name}. {self.player.skills[skill_name][1]}\n"
 
     def talk(self):
-        pass
+        pass #TODO: implement
 
     def show_locations(self):
         # Если есть подлокации

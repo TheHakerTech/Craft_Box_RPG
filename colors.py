@@ -23,7 +23,7 @@ x = 5 - magenta
 x = 6 - cyan
 x = 7 - white
 """
-
+# FIXME: this module is not used anywhere
 
 class TColors:
     """
