@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 class Currency:
     def __init__(
         self,
@@ -7,7 +8,7 @@ class Currency:
     ):
         self.name = "гео"
         self.num = num
-    
+
     def __add__(self, currency: Currency):
         return self.num + currency.num
 
@@ -22,5 +23,3 @@ class Currency:
 
     def __int__(self):
         return int(self.num)
-
-

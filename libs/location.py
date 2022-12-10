@@ -19,12 +19,7 @@ class BasicLocation:
 
 class Location:
     def __init__(
-        self,
-        name: str,
-        entities: dict,
-        hardlevel: int,
-        description,
-        underlocs=dict()
+        self, name: str, entities: dict, hardlevel: int, description, underlocs=dict()
     ):
         """
         Busic class for locations. Parameters:
@@ -37,9 +32,9 @@ class Location:
         self.underlocs = underlocs
         self.parent = BasicLocation()
         self.entities = entities
-        
-        self.ent_names = {str(k) : v for (k, v) in enumerate(self.entities.values(), 1)}
-        self.names = {str(k) : v for (k, v) in enumerate(self.underlocs.values(), 1)}
+
+        self.ent_names = {str(k): v for (k, v) in enumerate(self.entities.values(), 1)}
+        self.names = {str(k): v for (k, v) in enumerate(self.underlocs.values(), 1)}
 
         self.hardlevel = hardlevel
         self.description = description

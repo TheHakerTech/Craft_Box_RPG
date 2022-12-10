@@ -20,7 +20,6 @@ class NotPlayableEntity:
         dialog: list or tuple,
         identifier: EntType,
         description,
-        
     ):
         self.name = name
         self.dialog = dialog
@@ -54,7 +53,7 @@ class PlayableEntity:
         shild: items.Shield,
         identifier: EntType,
         after_death=None,
-        drop=None
+        drop=None,
     ):
         """
         Busic class for all entities. Parameters:
@@ -118,13 +117,21 @@ class AllEntities:
     )
     fire_boss = PlayableEntity(
         10.0,
-        (("О, странник!", "Ищешь ли ты смерти?", "Или же вершить судьбу ты призван?", "Нет", "Невозможно"),),
+        (
+            (
+                "О, странник!",
+                "Ищешь ли ты смерти?",
+                "Или же вершить судьбу ты призван?",
+                "Нет",
+                "Невозможно",
+            ),
+        ),
         "Огненный",
         [items.AllItems.fire_shell],
         "Старый рыцарь",
         0,
-        {"X":(items.AllItems.fire_sword, "Огонь...")},
+        {"X": (items.AllItems.fire_sword, "Огонь...")},
         items.AllItems.basic_shield,
         EntType.BOSS,
-        drop=items.AllItems.fire_sword
+        drop=items.AllItems.fire_sword,
     )

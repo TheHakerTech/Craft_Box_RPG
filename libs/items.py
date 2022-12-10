@@ -25,7 +25,6 @@ class Weapon:
 
 
 class Armor:
-
     def __init__(self, name: str, block_damage: float, description, interesting=""):
         self.name = name
         self.block_damage = block_damage
@@ -104,16 +103,13 @@ class AllItems:
     striking_nail = Weapon(
         "Разящий гвоздь", 4.0, "Длинный увесистый гвоздь. Разит на повал, но медленный"
     )
-    the_blockhead = Weapon(
-        "Дубина", 4.3, "Дубина - хорошое оружие в ближнем бою")
+    the_blockhead = Weapon("Дубина", 4.3, "Дубина - хорошое оружие в ближнем бою")
 
     # Armors
     busic_shell = Armor(
         "Панцирь", 0.2, "Плохо сдержавает удары", interesting="Создан природой"
     )
-    fire_shell = Armor(
-        "Огненный панцирь", 0, "", interesting=""
-    )
+    fire_shell = Armor("Огненный панцирь", 0, "", interesting="")
     fire_sword = Weapon("Огненный гвоздь", 0.9, "Поражает врагов огнём...")
 
     # Items
