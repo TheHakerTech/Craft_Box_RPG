@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from colors import TColors as c #FIXME: remove this
 import libs.entity as entity
 from libs.entity import AllEntities
 import libs.items as items #FIXME: remove this
