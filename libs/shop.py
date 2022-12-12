@@ -19,7 +19,7 @@ class Shop:
             console.print(
                 f"[bold white]{name} - [/bold white][bold blue]{means[0].description}. \
             {means[0].interesting}[/bold blue][bold green]{means[1]}"
-                #FIXME: item[1] is not defined
+                # FIXME: item[1] is not defined
                 if money > means[1]
                 else f"[bold white]{name} \
              - [/bold white][bold blue]{means[0].description}. {means[0].interesting}[/bold blue][bold red]{means[1]}"
