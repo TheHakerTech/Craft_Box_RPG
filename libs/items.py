@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 import random
+from magic_raw import *
 
 """
 Module items is using for make items
@@ -12,15 +13,25 @@ Classes:
 
 class Weapon:
     def __init__(
-        self, name: str, damage: float, description, controle="", interesting=""
+        self,
+        name: str,
+        damage: float,
+        description,
+        waste=None,
+        controle="",
+        interesting=""
     ):
         self.name = name
         self.damage = damage
         self.description = description
+        self.waste = waste
         self.controle = controle
         self.interesting = interesting
 
-    def doc(self):
+    def use(self, invetory):
+        pass
+
+    def __doc__(self):
         return str(self.description)
 
 
@@ -92,6 +103,7 @@ class AllItems:
     the_poisoned_dagger = Weapon(
         "Отравленный кинжал", 3.3, "Позволяет отравить противника"
     )
+    fire_sword = Weapon("Огненный гвоздь", 0.9, "Поражает врагов огнём...")
     bloody_sword = Weapon(
         "Кровавый гвоздь",
         3.5,
@@ -110,7 +122,9 @@ class AllItems:
         "Панцирь", 0.2, "Плохо сдержавает удары", interesting="Создан природой"
     )
     fire_shell = Armor("Огненный панцирь", 0, "", interesting="")
-    fire_sword = Weapon("Огненный гвоздь", 0.9, "Поражает врагов огнём...")
+    # Magic
+    the_devastating_peaks = Weapon("Опустошающие пике", 5, "Пикирует на противника сверху. Наносит коллосальный урон",
+        interesting="Тратит душу")
 
     # Items
     cape = Item(

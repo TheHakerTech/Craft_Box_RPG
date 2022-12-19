@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import libs.items as items
 import random
+from rich.console import Console
 
 entities_dict = {}
 """
 Module with class for entity - Entity
 """
 
+console = Console()
 
 class EntType:
     BOSS = "boss"
@@ -43,17 +45,17 @@ class NotPlayableEntity:
 class PlayableEntity:
     def __init__(
         self,
-        xp: float,
-        dialog: list or tuple,
-        name: str,
-        armors: list or tuple,
-        description,
-        block_damage,
-        skills: list or tuple,
-        shild: items.Shield,
-        identifier: EntType,
-        after_death=None,
-        drop=None,
+        xp: float, # хп
+        dialog: list or tuple, # Что он говорит. Пример: (([<Фраза1>], [<ФразаN>]),)
+        name: str, # Имя
+        armors: list or tuple, # Список доспех
+        description, # описание
+        block_damage, # Дамаг который он блокирует
+        skills: list or tuple, # 
+        shild: items.Shield, # 
+        identifier: EntType, # 
+        after_death=None, # 
+        drop=None, # 
     ):
         """
         Busic class for all entities. Parameters:
@@ -100,9 +102,11 @@ class PlayableEntity:
 
     def hit(self, weapon: items.Weapon):
         self.xp = self.xp + self.block_damage - weapon.damage
-        return (self.xp, weapon.damage - self.block_damage)
+
         if self.xp <= 0:
             self.death_event(self.after_death)
+        return (self.xp, weapon.damage - self.block_damage)
+        
 
     def doc(self):
         return str(self.description)

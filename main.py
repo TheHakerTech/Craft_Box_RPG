@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import libs.entity as entity
 from libs.entity import AllEntities
-import libs.items as items #FIXME: remove this
+import libs.items as items
+import re
 from libs.items import AllItems
 import libs.location as location
 from rich.console import Console
-from rich.progress import track
-import time #FIXME: remove this
+
+import random
 
 LEN_LINE = 15 * 3
 console = Console()
@@ -35,10 +36,8 @@ class Input:
             self._input = str(console.input(text))
             if stop(self._input):
                 break
-                continue #FIXME: remove this
             elif correct(self._input):
                 break
-                continue #FIXME: remove this
 
     def __int__(self):
         return int(self._input)
@@ -103,11 +102,12 @@ commands2 = [
     "fight",
 ]
 
+LOCATION = the_crossroads
+
 
 class Game:
     def __init__(self):
         console.print(RPG)
-        self.loading()
         self.main_menu()
         self.choice = str(
             Input("[bold red]> ", correct=lambda x: str(x).lower() in commands1)
@@ -127,10 +127,6 @@ class Game:
         ):
             console.print(ch)
 
-    def loading(self):
-        """for _ in track(range(100), description='[green]Processing data'):
-        time.sleep(0.1)"""
-        pass
 
 
 class Player(entity.PlayableEntity):
@@ -144,7 +140,7 @@ class Player(entity.PlayableEntity):
         items,
         skills: dict,
         description,
-        block_damage, #FIXME: never used
+        block_damage,
     ):
         # Init params
         self.xp = xp
@@ -156,7 +152,7 @@ class Player(entity.PlayableEntity):
         self.skills = skills
         self.items = items
         # Reinit params with changes
-        self.block_damage = 0
+        self.block_damage = block_damage
         for armor in self.armors:
             self.block_damage = self.block_damage + armor.block_damage
 
@@ -165,7 +161,7 @@ class Player(entity.PlayableEntity):
 
 
 class Save(AllItems):
-    def __init__(self, game: Game): # FIXME: too large init. split it
+    def __init__(self, game: Game):
         self.game = game
         self.total_location = the_crossroads
         if self.game.choice == LOADSAVE:
@@ -173,6 +169,13 @@ class Save(AllItems):
         elif self.game.choice == LASTSAVE:
             pass
         elif self.game.choice == NEWSAVE:
+            pattern = re.compile(r"""[0-9a-zа-яё]+""")
+            console.print("[bold green]Введите название для сохранения")
+            self.save_name = str(
+                Input(
+                    text="[bold red]> ", correct=lambda x: pattern.search(str(x).lower())
+                )
+            )
             self.player = Player(
                 xp=10.0,
                 damage=0.1,
@@ -181,8 +184,9 @@ class Save(AllItems):
                 weapons=[self.old_sword],
                 description="[bold white]Рыцарь, не помнящий ничего...",
                 block_damage=0.2,
-                skills={"X": (self.old_sword, "Удар гвоздём")},
-                items=[self.old_sword, self.cape, self.busic_shell],
+                skills={"X": (self.old_sword, "Удар гвоздём"),
+                "C": (self.basic_shield, "Щит")},
+                items=[self.old_sword, self.cape, self.busic_shell, self.basic_shield],
             )
             console.print(self.player.__doc__())
             while True:
@@ -194,78 +198,27 @@ class Save(AllItems):
                 correct_command2 = lambda: len(self.choice.split(" ")) == 1
                 if self.command == INV and correct_command2():  # Вещи
                     self.inventory()  # Открыть инвентарь
+
                 elif self.command == LOCS and correct_command2():  # Локации
                     self.show_locations()  # Показать локации
+
                 elif self.command == SKILLS and correct_command2():
                     self.show_skills()
-                elif self.command == SAVE and correct_command2():
+
+                elif self.command == SAVE and correct_command2(): # Не доделано
+                    #_save(LOCATION, self.game.save.save_name) Не доделано
+                    #console.print("[bold green]Сохранено") Не доделано
                     pass
+
                 elif self.command == LOC_QUIT and correct_command2():
                     self.total_location = self.total_location.parent
                     self.show_locations()
+
                 elif self.command == TALK and correct_command():  # Поговорить
-                    # Задаём переменную `arg`
-                    self.arg = str(self.choice).lower().split(" ")[1]
-                    if self.arg in self.total_location.ent_names:
-                        if (
-                            self.total_location.ent_names[self.arg].identifier
-                            == entity.EntType.NPC
-                        ):
-                            self.total_location.ent_names[self.arg].start_dialog()
+                    self.talk()
 
-                elif self.command == FIGHT and correct_command():  # Поговорить
-                    # Задаём переменную `arg`
-                    self.arg = str(self.choice).lower().split(" ")[1]
-                    if self.arg in self.total_location.ent_names:
-                        if (
-                            self.total_location.ent_names[self.arg].identifier
-                            == entity.EntType.BOSS
-                        ):
-                            enemy = self.total_location.ent_names[self.arg]
-                            enemy.start_dialog()
-
-                            console.print(
-                                f"[bold white]Сразится с [bold red]{enemy.name}[/bold red]? [y/n]"
-                            )
-                            answer = str(
-                                Input(
-                                    text="[bold red]> ",
-                                    correct=lambda x: str(x) in ("y", "n"),
-                                )
-                            )
-                            if answer == "y":
-                                console.print(
-                                    f"[bold red]Введите аттаку[/bold red] ({self.show_skills()})\n"
-                                )
-                                while not enemy.xp <= 0:
-                                    self.attack = str(
-                                        Input(
-                                            text="[bold red]> ",
-                                            correct=lambda x: str(x).upper()
-                                            in self.player.skills,
-                                        )
-                                    ).upper()
-                                    enemy.update_attack()
-                                    a = enemy.hit(self.player.skills[self.attack][0])
-                                    b = self.player.hit(enemy.skills[enemy.attack][0])
-                                    console.print(
-                                        f"Вы нанесли: {a[1]} {round(enemy.xp, 1)}/{round(enemy.full_xp, 1)}"
-                                    )
-                                    console.print(
-                                        f"Вам нанесли: {b[1]} {round(self.player.xp, 1)}/{round(self.player.full_xp, 1)}"
-                                    )
-                                    if self.player.xp <= 0:
-                                        break
-                                else:
-                                    enemy.death_event(enemy.after_death)
-                                    console.print(
-                                        f"[bold yellow]Вы победили[/bold yellow] [bold red]{enemy.name}"
-                                    )
-                                    console.print(
-                                        f"[bold white]Вы получили {enemy.drop.name}[/bold white] [bold yellow]{enemy.drop.description}"
-                                    )
-                                    self.player.items.append(enemy.drop)
-                                    del self.total_location.entities[enemy.name]
+                elif self.command == FIGHT and correct_command():  # Сразится
+                    self.fight()
 
                 elif self.command == GO and correct_command():
                     self.arg = str(self.choice).lower().split(" ")[1]
@@ -281,83 +234,105 @@ class Save(AllItems):
                             self.show_locations()
                     else:
                         self.show_locations()
-                else:
-                    ### Дальше не правильно!!!!!!
-                    if str(self.choice).lower() in self.total_location.names:
-                        self.total_location = names_dict[str(self.choice).lower()]
-                        self.show_locations()
 
-                    elif str(self.choice).lower() in self.total_location.ent_names:
-
-                        if (
-                            ent_names_dict[str(self.choice).lower()].identifier
-                            == entity.EntType.NPC
-                        ):
-                            ent_names_dict[str(self.choice).lower()].start_dialog()
-                        elif (
-                            ent_names_dict[str(self.choice).lower()].identifier
-                            == entity.EntType.BOSS
-                        ):
-                            ent_names_dict[str(self.choice).lower()].start_dialog()
-                            console.print(
-                                f"Сразится с {ent_names_dict[str(self.choice).lower()].name}? [y/n]"
-                            )
-                            answer = str(
-                                Input(
-                                    text="[bold red]> ",
-                                    correct=lambda x: str(x) in ("y", "n"),
-                                )
-                            )
-                            if answer == "y":
-                                enemy = ent_names_dict[str(self.choice).lower()]
-                                console.print(
-                                    f"[bold red]Введите аттаку[/bold red] ({self.show_skills()})\n"
-                                )
-                                while not enemy.xp <= 0:
-                                    self.attack = str(
-                                        Input(
-                                            text="[bold red]> ",
-                                            correct=lambda x: str(x).upper()
-                                            in self.player.skills,
-                                        )
-                                    ).upper()
-                                    enemy.update_attack()
-                                    a = enemy.hit(self.player.skills[self.attack][0])
-                                    b = self.player.hit(enemy.skills[enemy.attack][0])
-                                    console.print(
-                                        f"Вы нанесли: {a[1]} {round(enemy.xp, 1)}/{round(enemy.full_xp, 1)}"
-                                    )
-                                    console.print(
-                                        f"Вам нанесли: {b[1]} {round(self.player.xp, 1)}/{round(self.player.full_xp, 1)}"
-                                    )
-                                    if self.player.xp <= 0:
-                                        break
-                                else:
-                                    enemy.death_event(enemy.after_death)
-                                    console.print(f"[]Вы победили {enemy.name}")
-                                    console.print(
-                                        f"Вы получили {enemy.drop.name} {enemy.drop.description}"
-                                    )
-                                    self.player.items.append(enemy.drop)
-
-                        self.show_locations()
-
-                    if str(self.choice).lower() == self.total_location.parent.name:
-                        self.total_location = self.total_location.parent
-                        self.show_locations()
+                elif self.command == EXIT and correct_command2():
+                    self.exit()
 
         elif self.game.choice == EXIT:
-            raise KeyboardInterrupt
+            self.exit()
+            
 
     def show_skills(self):
+        d = str()
         for skill_name in self.player.skills:
             console.print(
                 f"[bold white]{self.player.skills[skill_name][0].name}[/bold white] - [blue]{skill_name}.[/blue] [yellow]{self.player.skills[skill_name][1]}[/yellow]"
             )
-            return f"{skill_name} - {self.player.skills[skill_name][0].name}. {self.player.skills[skill_name][1]}\n"
+            d += f"{skill_name} - {self.player.skills[skill_name][0].name}. {self.player.skills[skill_name][1]},\n"
+        return d
+
+    def exit(self):
+        print("^C")
+        console.print("[bold red]Вы действительно хотите выйти?[/bold red][y/n]")
+        is_exit = str(
+            Input(
+                text="[bold red]> ", correct=lambda x: str(x).lower() in ("y", "n")
+            )
+        )
+        if is_exit.lower() == "y":
+            pass
+            
+        elif is_exit.lower() == "n":
+            pass
+
+    def fight(self):
+        # Задаём переменную `arg`
+        self.arg = str(self.choice).lower().split(" ")[1]
+        if self.arg in self.total_location.ent_names:
+            if (
+                self.total_location.ent_names[self.arg].identifier
+                == entity.EntType.BOSS
+            ):
+                enemy = self.total_location.ent_names[self.arg]
+                enemy.start_dialog()
+                console.print(
+                    f"[bold white]Сразится с [bold red]{enemy.name}[/bold red]? [y/n]"
+                )
+                answer = str(
+                    Input(
+                        text="[bold red]> ",
+                        correct=lambda x: str(x) in ("y", "n"),
+                    )
+                )
+                if answer == "y":
+                    console.print(
+                        f"[bold red]Введите аттаку[/bold red] ({self.show_skills()})\n"
+                    )
+                    while not enemy.xp <= 0:
+                        self.attack = str(
+                            Input(
+                                text="[bold red]> ",
+                                correct=lambda x: str(x).upper()
+                                in self.player.skills,
+                            )
+                        ).upper()
+                        enemy.update_attack()
+                        if isinstance(self.player.skills[self.attack][0], items.Shield):
+                            console.print("[bold white]Вы отразили удар")
+                        else:
+                            if isinstance(enemy.attack, items.Shield):
+                                console.print("[bold white]Противник отразил удар")
+                            else:
+                                a = enemy.hit(self.player.skills[self.attack][0])
+                                b = self.player.hit(enemy.skills[enemy.attack][0])
+                                console.print(
+                                    f"Вы нанесли: {a[1]} {round(enemy.xp, 1)}/{round(enemy.full_xp, 1)}"
+                                )
+                                console.print(
+                                    f"Вам нанесли: {b[1]} {round(self.player.xp, 1)}/{round(self.player.full_xp, 1)}"
+                                )
+                                if self.player.xp <= 0:
+                                    break
+                    else:
+                        enemy.death_event(enemy.after_death)
+                        console.print(
+                            f"[bold yellow]Вы победили[/bold yellow] [bold red]{enemy.name}"
+                        )
+                        console.print(
+                            f"[bold white]Вы получили {enemy.drop.name}[/bold white] [bold yellow]{enemy.drop.description}"
+                        )
+                        self.player.items.append(enemy.drop)
+                        del self.total_location.entities[enemy.name]
 
     def talk(self):
-        pass #TODO: implement
+        # Задаём переменную `arg`
+        self.arg = str(self.choice).lower().split(" ")[1]
+        if self.arg in self.total_location.ent_names:
+            if (
+                self.total_location.ent_names[self.arg].identifier
+                == entity.EntType.NPC
+            ):
+                self.total_location.ent_names[self.arg].start_dialog()
 
     def show_locations(self):
         # Если есть подлокации
@@ -421,7 +396,6 @@ class Save(AllItems):
             )
         ).lower()
 
-
 if __name__ == "__main__":
     while True:
         try:
@@ -436,5 +410,6 @@ if __name__ == "__main__":
             )
             if is_exit.lower() == "y":
                 break
+                
             elif is_exit.lower() == "n":
                 continue
