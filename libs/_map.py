@@ -24,6 +24,3 @@ def rec_walk_locs(location, map_):
     else:
         for loc in location.underlocs.values():
             rec_walk_locs(loc, b_map)
-
-s = set_map(the_crossroads, shop.name)
-console.print(s)
