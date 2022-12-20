@@ -7,7 +7,6 @@ from libs.items import AllItems
 import libs.location as location
 from rich.console import Console
 
-import random
 
 LEN_LINE = 15 * 3
 console = Console()
@@ -38,6 +37,7 @@ class Input:
                 break
             elif correct(self._input):
                 break
+
 
     def __int__(self):
         return int(self._input)
@@ -136,7 +136,7 @@ class Player(entity.PlayableEntity):
         damage: float,
         name: str,
         armors: list or tuple,
-        weapons: list or tuple, #FIXME: never used
+        weapons: list or tuple,  # FIXME: never used
         items,
         skills: dict,
         description,
@@ -236,10 +236,10 @@ class Save(AllItems):
                         self.show_locations()
 
                 elif self.command == EXIT and correct_command2():
-                    self.exit()
+                    raise KeyboardInterrupt
 
         elif self.game.choice == EXIT:
-            self.exit()
+            raise KeyboardInterrupt
             
 
     def show_skills(self):
@@ -251,7 +251,7 @@ class Save(AllItems):
             d += f"{skill_name} - {self.player.skills[skill_name][0].name}. {self.player.skills[skill_name][1]},\n"
         return d
 
-    def exit(self):
+    def _exit(self):
         print("^C")
         console.print("[bold red]Вы действительно хотите выйти?[/bold red][y/n]")
         is_exit = str(

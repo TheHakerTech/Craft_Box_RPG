@@ -23,7 +23,7 @@ class Shop:
                 {means[0].interesting}[/bold blue][bold green]{means[1].num}"
                 if money.num > means[1].num
                 else f"[bold white]{means[0].name} \
-             - [/bold white][bold blue]{means[0].description}. {means[0].interesting}[/bold blue][bold red]{means[1].num}"
+                - [/bold white][bold blue]{means[0].description}. {means[0].interesting}[/bold blue][bold red]{means[1].num}"
             )
 
     def buy(self, name):

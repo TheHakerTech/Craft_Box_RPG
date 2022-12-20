@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 import random
-from magic_raw import *
+from libs.magic_raw import *
 
 """
 Module items is using for make items
