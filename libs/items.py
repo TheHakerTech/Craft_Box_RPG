@@ -19,7 +19,7 @@ class Weapon:
         description,
         waste=None,
         controle="",
-        interesting=""
+        interesting="",
     ):
         self.name = name
         self.damage = damage
@@ -123,8 +123,12 @@ class AllItems:
     )
     fire_shell = Armor("Огненный панцирь", 0, "", interesting="")
     # Magic
-    the_devastating_peaks = Weapon("Опустошающие пике", 5, "Пикирует на противника сверху. Наносит коллосальный урон",
-        interesting="Тратит душу")
+    the_devastating_peaks = Weapon(
+        "Опустошающие пике",
+        5,
+        "Пикирует на противника сверху. Наносит коллосальный урон",
+        interesting="Тратит душу",
+    )
 
     # Items
     cape = Item(
