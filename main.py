@@ -11,7 +11,7 @@ from rich.console import Console
 LEN_LINE = 15 * 3
 console = Console()
 name = "RPG"
-RPG = f"""
+TITLE = f"""
 {"[bold red] ┏━━━━━━━━━━━┓  "}{"[bold blue] ┏━━━━━━━━━━━┓ "}{"[bold yellow] ┏━━━━━━━━━━━┓  "}
 {"[bold red] ┃   ┏━━━━┓  ┃  "}{"[bold blue] ┃   ┏━━━━━┓ ┃ "}{"[bold yellow] ┃   ┏━━━━━━━┛  "}
 {"[bold red] ┃   ┗━━━━┛  ┃  "}{"[bold blue] ┃   ┗━━━━━┛ ┃ "}{"[bold yellow] ┃   ┃          "}
@@ -27,9 +27,9 @@ class Input:
         """
         Class for inputing means from console
         Parameters:
-        -`text` str text that will be in input
-        -`stop` function if it is true while will stop
-        -`correct` lambda is cheacking mean before return
+        - `text` str text that will be in input
+        - `stop` function if it is true while will stop
+        - `correct` lambda is cheacking mean before return
         """
         while True:
             self._input = str(console.input(text))
@@ -106,7 +106,7 @@ LOCATION = the_crossroads
 
 class Game:
     def __init__(self):
-        console.print(RPG)
+        console.print(TITLE)
         self.main_menu()
         self.choice = str(
             Input("[bold red]> ", correct=lambda x: str(x).lower() in commands1)
