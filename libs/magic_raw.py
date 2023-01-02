@@ -11,6 +11,13 @@ class MagicRaw:
     def __doc__(self):
         return str(self.description)
 
+class TheSoul(MagicRaw):
+    def __init__(self, count):
+        super().__init__(count)
+        self.description = """
+        Душа. Мощная сила... Но трата ради использования велика...
+        """
+
 class TheVoid(MagicRaw):
     def __init__(self, count):
         super().__init__(count)
@@ -22,5 +29,5 @@ class TheLight(MagicRaw):
     def __init__(self, count):
         super().__init__(count)
         self.description = """
-        Свет... Яркий и неприятный.
+        Свет... Ослепительно яркий.
         """   

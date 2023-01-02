@@ -6,6 +6,7 @@ import re
 from libs.items import AllItems
 import libs.location as location
 from rich.console import Console
+from libs.magic_raw import *
 
 
 LEN_LINE = 15 * 3
@@ -56,7 +57,7 @@ SKILLS = "skills"
 LOCS = "locs"
 GO = "go"
 SAVE = "save"
-LOC_QUIT = "quit"
+QUIT = "quit"
 TALK = "talk"
 FIGHT = "fight"
 
@@ -137,6 +138,8 @@ class Player(entity.PlayableEntity):
         name: str,
         armors: list or tuple,
         weapons: list or tuple,  # FIXME: never used
+        soul_count: TheSoul,
+        void_count: TheVoid,
         items,
         skills: dict,
         description,
@@ -148,6 +151,9 @@ class Player(entity.PlayableEntity):
         self.damage = damage
         self.name = name
         self.armors = armors
+        self.weapons = weapons
+        self.soul_count = soul_count
+        self.void_count = void_count
         self.description = description
         self.skills = skills
         self.items = items
@@ -182,11 +188,16 @@ class Save(AllItems):
                 name="Рыцарь",
                 armors=[self.busic_shell],
                 weapons=[self.old_sword],
+                soul_count=TheSoul(0.5),
+                void_count=TheVoid(50),
                 description="[bold white]Рыцарь, не помнящий ничего...",
                 block_damage=0.2,
-                skills={"X": (self.old_sword, "Удар гвоздём"),
-                "C": (self.basic_shield, "Щит")},
-                items=[self.old_sword, self.cape, self.busic_shell, self.basic_shield],
+                skills={
+                    "X": (self.old_sword, "Удар гвоздём"),
+                    "C": (self.basic_shield, "Щит")
+                },
+                items=[self.old_sword, self.cape, self.busic_shell, self.basic_shield
+                ],
             )
             console.print(self.player.__doc__())
             while True:
@@ -210,29 +221,27 @@ class Save(AllItems):
                     #console.print("[bold green]Сохранено") Не доделано
                     pass
 
-                elif self.command == LOC_QUIT and correct_command2():
-                    self.total_location = self.total_location.parent
-                    self.show_locations()
-
                 elif self.command == TALK and correct_command():  # Поговорить
                     self.talk()
 
                 elif self.command == FIGHT and correct_command():  # Сразится
                     self.fight()
 
+                elif self.command == QUIT and correct_command2():
+                    if not isinstance(self.total_location.parent, location.BasicLocation):
+                        self.total_location = self.total_location.parent
+                    self.show_locations()
+
                 elif self.command == GO and correct_command():
                     self.arg = str(self.choice).lower().split(" ")[1]
+                    print(self.total_location.names.keys())
                     if self.arg in self.total_location.names.keys():
-
-                        if self.total_location.names[self.arg].name in names_dict:
-                            self.total_location = names_dict[
-                                self.total_location.names[self.arg].name
-                            ]
-                            self.show_locations()
-                        else:
-                            console.print("[bold red]Введено неверное число")
-                            self.show_locations()
+                        self.total_location = names_dict[
+                            self.total_location.names[self.arg].name
+                        ]
+                        self.show_locations()
                     else:
+                        console.print("[bold red]Введено неверное число")
                         self.show_locations()
 
                 elif self.command == EXIT and correct_command2():
@@ -265,6 +274,19 @@ class Save(AllItems):
         elif is_exit.lower() == "n":
             pass
 
+    def correct_attack(self, attack: str):
+        if len(attack) <= 2:
+            result = False
+            for n in attack.upper():
+                if n in self.player.skills:
+                    result = True
+                else:
+                    result = False
+            return result
+        else:
+            return False
+
+
     def fight(self):
         # Задаём переменную `arg`
         self.arg = str(self.choice).lower().split(" ")[1]
@@ -285,34 +307,39 @@ class Save(AllItems):
                     )
                 )
                 if answer == "y":
+                    console.print(self.show_skills())
                     console.print(
-                        f"[bold red]Введите аттаку[/bold red] ({self.show_skills()})\n"
+                        f"[bold red]Введите аттаку[/bold red]\n"
                     )
                     while not enemy.xp <= 0:
                         self.attack = str(
                             Input(
                                 text="[bold red]> ",
-                                correct=lambda x: str(x).upper()
-                                in self.player.skills,
+                                correct=self.correct_attack
                             )
                         ).upper()
                         enemy.update_attack()
-                        if isinstance(self.player.skills[self.attack][0], items.Shield):
-                            console.print("[bold white]Вы отразили удар")
-                        else:
-                            if isinstance(enemy.attack, items.Shield):
-                                console.print("[bold white]Противник отразил удар")
+                        for atk in self.attack:
+                            print(self.player.skills[atk][0])
+                            if isinstance(self.player.skills[atk][0], items.Shield):
+                                console.print("[bold white]Вы отразили удар")
                             else:
-                                a = enemy.hit(self.player.skills[self.attack][0])
-                                b = self.player.hit(enemy.skills[enemy.attack][0])
-                                console.print(
-                                    f"Вы нанесли: {a[1]} {round(enemy.xp, 1)}/{round(enemy.full_xp, 1)}"
-                                )
-                                console.print(
-                                    f"Вам нанесли: {b[1]} {round(self.player.xp, 1)}/{round(self.player.full_xp, 1)}"
-                                )
-                                if self.player.xp <= 0:
-                                    break
+                                if isinstance(enemy.skills[enemy.attack][0], items.Shield):
+                                    console.print("[bold white]Противник отразил удар")
+                                else:
+                                    a = enemy.hit(self.player.skills[atk][0])
+                                    b = self.player.hit(enemy.skills[enemy.attack][0])
+                                    console.print(
+                                        f"Вы нанесли: {a[1]} {round(enemy.xp, 1)}/{round(enemy.full_xp, 1)}"
+                                    )
+                                    console.print(
+                                        f"Вам нанесли: {b[1]} {round(self.player.xp, 1)}/{round(self.player.full_xp, 1)}"
+                                    )
+                                    if self.player.xp <= 0:
+                                        break
+                            
+                                
+
                     else:
                         enemy.death_event(enemy.after_death)
                         console.print(
@@ -346,15 +373,17 @@ class Save(AllItems):
             )
             # Показать подлокации
             console.print("[bold green]Подлокации[/bold green]")
-            for num, under_loc in enumerate(
-                self.total_location.underlocs.values(), 1
-            ):  # Циклом перебераем подлокации
+            self.loc_index = 0
+            for num in self.total_location.names: # Циклом перебераем подлокации
                 console.print(
-                    f"[blue]{num}[/blue][bold white] - {under_loc.name}[/bold white] [bold yellow]{under_loc.description}[/bold yellow]"
+                    f"[blue]{num}[/blue][bold white] - {self.total_location.names[num].name}[/bold white] [bold yellow]{self.total_location.names[num].description}[/bold yellow]"
                 )
-            console.print(
-                f"[blue]quit[/blue][bold white] - {self.total_location.parent.name}[/bold white] (Выход)"
-            )
+                self.loc_index += 1
+
+            if not isinstance(self.total_location.parent, location.BasicLocation):
+                console.print(
+                    f"[blue]quit[/blue][bold white] - {self.total_location.parent.name}[/bold white] (Выход)"
+                )
         # Вывод существ
         # Проверяем, есть ли существа в текущей локации
         if (

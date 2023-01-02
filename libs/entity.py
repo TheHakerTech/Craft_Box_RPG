@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import libs.items as items
+from libs.items import AllItems
 import random
 from rich.console import Console
+from libs.magic_raw import *
 
 entities_dict = {}
 """
@@ -52,9 +54,10 @@ class PlayableEntity:
         description, # описание
         block_damage, # Дамаг который он блокирует
         skills: list or tuple, # 
-        shild: items.Shield, # 
+        shield: items.Shield, # 
         identifier: EntType, # 
         after_death=None, # 
+        every_drop=None, #
         drop=None, # 
     ):
         """
@@ -71,12 +74,14 @@ class PlayableEntity:
         self.xp = xp
         self.full_xp = xp
         self.name = name
-        self.shild = shild
+        self.shield = shield
         self.skills = skills
         self.after_death = after_death
         self.armors = armors
         self.description = description
         self.identifier = identifier
+        self.every_drop = every_drop
+
         self.block_damage = block_damage
         self.dialog = dialog
         self.attack = None
@@ -131,11 +136,13 @@ class AllEntities:
             ),
         ),
         "Огненный",
-        [items.AllItems.fire_shell],
+        [AllItems.fire_shell],
         "Старый рыцарь",
         0,
-        {"X": (items.AllItems.fire_sword, "Огонь...")},
-        items.AllItems.basic_shield,
+        {"X": (AllItems.fire_sword, "Огонь..."),
+         "C": (AllItems.basic_shield, "Щит")},
+        AllItems.basic_shield,
         EntType.BOSS,
-        drop=items.AllItems.fire_sword,
+        drop=AllItems.fire_sword,
+        every_drop=TheSoul(0.5)
     )
