@@ -29,7 +29,7 @@ class Shop:
     def buy(self, name):
         console.print(f"[bold white]Куплено: [/bold white]{self.items.pop(name)}")
         self.show()
-shop = Shop(items={
-    items.AllItems.old_sword.name:(items.AllItems.old_sword, c(20))
-})
+
+
+shop = Shop(items={items.AllItems.old_sword.name: (items.AllItems.old_sword, c(20))})
 shop.show(c(100))

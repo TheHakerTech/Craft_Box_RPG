@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
+
 class MagicRaw:
-    def __init__(
-        self,
-        count
-    ):
+    def __init__(self, count):
         self.count = count
         self.description = str()
 
@@ -24,6 +22,7 @@ class TheVoid(MagicRaw):
         self.description = """
         Пустота... Странное чёрное вещество... Однако чувствовается знакомое и родное
         """
+
 
 class TheLight(MagicRaw):
     def __init__(self, count):

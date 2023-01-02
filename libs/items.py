@@ -19,7 +19,7 @@ class Weapon:
         description,
         waste=None,
         controle="",
-        interesting=""
+        interesting="",
     ):
         self.name = name
         self.damage = damage

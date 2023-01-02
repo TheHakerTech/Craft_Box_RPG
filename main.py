@@ -12,7 +12,7 @@ from libs.magic_raw import *
 LEN_LINE = 15 * 3
 console = Console()
 name = "RPG"
-RPG = f"""
+TITLE = f"""
 {"[bold red] ┏━━━━━━━━━━━┓  "}{"[bold blue] ┏━━━━━━━━━━━┓ "}{"[bold yellow] ┏━━━━━━━━━━━┓  "}
 {"[bold red] ┃   ┏━━━━┓  ┃  "}{"[bold blue] ┃   ┏━━━━━┓ ┃ "}{"[bold yellow] ┃   ┏━━━━━━━┛  "}
 {"[bold red] ┃   ┗━━━━┛  ┃  "}{"[bold blue] ┃   ┗━━━━━┛ ┃ "}{"[bold yellow] ┃   ┃          "}
@@ -28,9 +28,9 @@ class Input:
         """
         Class for inputing means from console
         Parameters:
-        -`text` str text that will be in input
-        -`stop` function if it is true while will stop
-        -`correct` lambda is cheacking mean before return
+        - `text` str text that will be in input
+        - `stop` function if it is true while will stop
+        - `correct` lambda is cheacking mean before return
         """
         while True:
             self._input = str(console.input(text))
@@ -38,7 +38,6 @@ class Input:
                 break
             elif correct(self._input):
                 break
-
 
     def __int__(self):
         return int(self._input)
@@ -108,7 +107,7 @@ LOCATION = the_crossroads
 
 class Game:
     def __init__(self):
-        console.print(RPG)
+        console.print(TITLE)
         self.main_menu()
         self.choice = str(
             Input("[bold red]> ", correct=lambda x: str(x).lower() in commands1)
@@ -127,7 +126,6 @@ class Game:
             "[blue]exit[/blue] - Выход (Ctrl+C)",
         ):
             console.print(ch)
-
 
 
 class Player(entity.PlayableEntity):
@@ -179,7 +177,8 @@ class Save(AllItems):
             console.print("[bold green]Введите название для сохранения")
             self.save_name = str(
                 Input(
-                    text="[bold red]> ", correct=lambda x: pattern.search(str(x).lower())
+                    text="[bold red]> ",
+                    correct=lambda x: pattern.search(str(x).lower()),
                 )
             )
             self.player = Player(
@@ -192,12 +191,9 @@ class Save(AllItems):
                 void_count=TheVoid(50),
                 description="[bold white]Рыцарь, не помнящий ничего...",
                 block_damage=0.2,
-                skills={
-                    "X": (self.old_sword, "Удар гвоздём"),
-                    "C": (self.basic_shield, "Щит")
-                },
-                items=[self.old_sword, self.cape, self.busic_shell, self.basic_shield
-                ],
+                skills={"X": (self.old_sword, "Удар гвоздём"),
+                "C": (self.basic_shield, "Щит")},
+                items=[self.old_sword, self.cape, self.busic_shell, self.basic_shield],
             )
             console.print(self.player.__doc__())
             while True:
@@ -216,9 +212,9 @@ class Save(AllItems):
                 elif self.command == SKILLS and correct_command2():
                     self.show_skills()
 
-                elif self.command == SAVE and correct_command2(): # Не доделано
-                    #_save(LOCATION, self.game.save.save_name) Не доделано
-                    #console.print("[bold green]Сохранено") Не доделано
+                elif self.command == SAVE and correct_command2():  # Не доделано
+                    # _save(LOCATION, self.game.save.save_name) Не доделано
+                    # console.print("[bold green]Сохранено") Не доделано
                     pass
 
                 elif self.command == TALK and correct_command():  # Поговорить
@@ -249,7 +245,6 @@ class Save(AllItems):
 
         elif self.game.choice == EXIT:
             raise KeyboardInterrupt
-            
 
     def show_skills(self):
         d = str()
@@ -264,13 +259,11 @@ class Save(AllItems):
         print("^C")
         console.print("[bold red]Вы действительно хотите выйти?[/bold red][y/n]")
         is_exit = str(
-            Input(
-                text="[bold red]> ", correct=lambda x: str(x).lower() in ("y", "n")
-            )
+            Input(text="[bold red]> ", correct=lambda x: str(x).lower() in ("y", "n"))
         )
         if is_exit.lower() == "y":
             pass
-            
+
         elif is_exit.lower() == "n":
             pass
 
@@ -315,7 +308,8 @@ class Save(AllItems):
                         self.attack = str(
                             Input(
                                 text="[bold red]> ",
-                                correct=self.correct_attack
+                                correct=lambda x: str(x).upper()
+                                in self.player.skills,
                             )
                         ).upper()
                         enemy.update_attack()
@@ -355,10 +349,7 @@ class Save(AllItems):
         # Задаём переменную `arg`
         self.arg = str(self.choice).lower().split(" ")[1]
         if self.arg in self.total_location.ent_names:
-            if (
-                self.total_location.ent_names[self.arg].identifier
-                == entity.EntType.NPC
-            ):
+            if self.total_location.ent_names[self.arg].identifier == entity.EntType.NPC:
                 self.total_location.ent_names[self.arg].start_dialog()
 
     def show_locations(self):
@@ -425,6 +416,7 @@ class Save(AllItems):
             )
         ).lower()
 
+
 if __name__ == "__main__":
     while True:
         try:
@@ -439,6 +431,6 @@ if __name__ == "__main__":
             )
             if is_exit.lower() == "y":
                 break
-                
+
             elif is_exit.lower() == "n":
                 continue
