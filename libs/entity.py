@@ -5,6 +5,8 @@ import random
 from rich.console import Console
 from libs.magic_raw import *
 
+AllItems = AllItems()
+
 entities_dict = {}
 """
 Module with class for entity - Entity

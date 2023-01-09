@@ -5,8 +5,11 @@ import libs.items as items
 import re
 from libs.items import AllItems
 import libs.location as location
+from saves_manager import *
 from rich.console import Console
 from libs.magic_raw import *
+
+AllItems = AllItems()
 
 
 LEN_LINE = 15 * 3
@@ -55,6 +58,7 @@ MAP = "map"
 SKILLS = "skills"
 LOCS = "locs"
 GO = "go"
+MAP = "map"
 SAVE = "save"
 QUIT = "quit"
 TALK = "talk"
@@ -138,7 +142,7 @@ class Player(entity.PlayableEntity):
         weapons: list or tuple,  # FIXME: never used
         soul_count: TheSoul,
         void_count: TheVoid,
-        items,
+        items: list,
         skills: dict,
         description,
         block_damage,
@@ -154,98 +158,113 @@ class Player(entity.PlayableEntity):
         self.void_count = void_count
         self.description = description
         self.skills = skills
-        self.items = items
+        self.items = {k : v for (k, v) in zip(
+            [item.name for item in items],
+            items
+        )}
+        print(self.items)
+
         # Reinit params with changes
         self.block_damage = block_damage
         for armor in self.armors:
             self.block_damage = self.block_damage + armor.block_damage
+        
 
     def __doc__(self):
         return str(self.description)
 
 
-class Save(AllItems):
+class Save():
     def __init__(self, game: Game):
         self.game = game
         self.total_location = the_crossroads
+        self.pattern = re.compile(r"""[0-9a-zа-яё]+""")
         if self.game.choice == LOADSAVE:
-            pass
+            self = load_game()[0]
+            console.print("[bold green]Введите название сохранения")
+            self.save_name = str(
+                Input(
+                    text="[bold red]> ",
+                    correct=lambda x: self.pattern.search(str(x).lower()) and not x in saves_list(),
+                )
+            )
+            self.player = self.object_save().player
+            self.new_save()
         elif self.game.choice == LASTSAVE:
             pass
+
+
         elif self.game.choice == NEWSAVE:
-            pattern = re.compile(r"""[0-9a-zа-яё]+""")
+            
             console.print("[bold green]Введите название для сохранения")
             self.save_name = str(
                 Input(
                     text="[bold red]> ",
-                    correct=lambda x: pattern.search(str(x).lower()),
+                    correct=lambda x: self.pattern.search(str(x).lower()) and not x in saves_list(),
                 )
             )
+            
+            
             self.player = Player(
                 xp=10.0,
                 damage=0.1,
                 name="Рыцарь",
-                armors=[self.busic_shell],
-                weapons=[self.old_sword],
+                armors=[AllItems.busic_shell],
+                weapons=[AllItems.old_sword],
                 soul_count=TheSoul(0.5),
                 void_count=TheVoid(50),
                 description="[bold white]Рыцарь, не помнящий ничего...",
                 block_damage=0.2,
-                skills={"X": (self.old_sword, "Удар гвоздём"),
-                "C": (self.basic_shield, "Щит")},
-                items=[self.old_sword, self.cape, self.busic_shell, self.basic_shield],
+                skills={"X": (AllItems.old_sword, "Удар гвоздём"),
+                "C": (AllItems.basic_shield, "Щит")},
+                items=[AllItems.old_sword, AllItems.cape, AllItems.busic_shell, AllItems.basic_shield],
             )
-            console.print(self.player.__doc__())
-            while True:
-                # Выводим меню
-
-                self.menu()
-                self.command = self.choice.lower().split(" ")[0]
-                correct_command = lambda: len(self.choice.split(" ")) >= 2
-                correct_command2 = lambda: len(self.choice.split(" ")) == 1
-                if self.command == INV and correct_command2():  # Вещи
-                    self.inventory()  # Открыть инвентарь
-
-                elif self.command == LOCS and correct_command2():  # Локации
-                    self.show_locations()  # Показать локации
-
-                elif self.command == SKILLS and correct_command2():
-                    self.show_skills()
-
-                elif self.command == SAVE and correct_command2():  # Не доделано
-                    # _save(LOCATION, self.game.save.save_name) Не доделано
-                    # console.print("[bold green]Сохранено") Не доделано
-                    pass
-
-                elif self.command == TALK and correct_command():  # Поговорить
-                    self.talk()
-
-                elif self.command == FIGHT and correct_command():  # Сразится
-                    self.fight()
-
-                elif self.command == QUIT and correct_command2():
-                    if not isinstance(self.total_location.parent, location.BasicLocation):
-                        self.total_location = self.total_location.parent
-                    self.show_locations()
-
-                elif self.command == GO and correct_command():
-                    self.arg = str(self.choice).lower().split(" ")[1]
-                    print(self.total_location.names.keys())
-                    if self.arg in self.total_location.names.keys():
-                        self.total_location = names_dict[
-                            self.total_location.names[self.arg].name
-                        ]
-                        self.show_locations()
-                    else:
-                        console.print("[bold red]Введено неверное число")
-                        self.show_locations()
-
-                elif self.command == EXIT and correct_command2():
-                    raise KeyboardInterrupt
+            self.new_save()
 
         elif self.game.choice == EXIT:
             raise KeyboardInterrupt
 
+    def new_save(self):
+        # Modules settings
+        items.player = self.player
+        console.print(self.player.__doc__())
+        save_game(self.save_name, self)
+        while True:
+            # Выводим меню
+            self.menu()
+            self.command = self.choice.lower().split(" ")[0]
+            correct_command = lambda: len(self.choice.split(" ")) >= 2
+            correct_command2 = lambda: len(self.choice.split(" ")) == 1
+            if self.command == INV and correct_command2():  # Вещи
+                self.inventory()  # Открыть инвентарь
+            elif self.command == LOCS and correct_command2():  # Локации
+                self.show_locations()  # Показать локации
+            elif self.command == SKILLS and correct_command2():
+                self.show_skills()
+            elif self.command == SAVE and correct_command2():  # Не доделано
+                save_game(self.save_name, [self.player, LOCATION])
+                console.print("[bold green]Сохранено")
+            elif self.command == TALK and correct_command():  # Поговорить
+                self.talk()
+            elif self.command == FIGHT and correct_command():  # Сразится
+                self.fight()
+            elif self.command == QUIT and correct_command2():
+                if not isinstance(self.total_location.parent, location.BasicLocation):
+                    self.total_location = self.total_location.parent
+                self.show_locations()
+            elif self.command == GO and correct_command():
+                self.arg = str(self.choice).lower().split(" ")[1]
+                print(self.total_location.names.keys())
+                if self.arg in self.total_location.names.keys():
+                    self.total_location = names_dict[
+                        self.total_location.names[self.arg].name
+                    ]
+                    self.show_locations()
+                else:
+                    console.print("[bold red]Введено неверное число")
+                    self.show_locations()
+            elif self.command == EXIT and correct_command2():
+                raise KeyboardInterrupt
     def show_skills(self):
         d = str()
         for skill_name in self.player.skills:
@@ -342,7 +361,8 @@ class Save(AllItems):
                         console.print(
                             f"[bold white]Вы получили {enemy.drop.name}[/bold white] [bold yellow]{enemy.drop.description}"
                         )
-                        self.player.items.append(enemy.drop)
+                        enemy.drop.received()
+                        self.player.items[enemy.drop.name] = enemy.drop
                         del self.total_location.entities[enemy.name]
 
     def talk(self):
@@ -390,9 +410,10 @@ class Save(AllItems):
 
     def inventory(self):
         console.print("[bold green]Вещи")
-        for item in self.player.items:
+        for item_name in self.player.items:
             console.print(
-                f"[bold white]{item.name}[/bold white] [blue]{item.description}.[/blue] [yellow]{item.interesting}[/yellow]"
+                f"[bold white]{item_name}[/bold white] [blue]{self.player.items[item_name].description}.[/blue]\
+                    [yellow]{self.player.items[item_name].interesting}[/yellow]"
             )
 
     def menu(self):
@@ -405,6 +426,7 @@ class Save(AllItems):
             "  [blue]save[/blue] - Сохранить         (save)",
             "    [blue]go[/blue] - Переместиться     (go <номер локации>)",
             "  [blue]exit[/blue] - Выход (Ctrl+C)    (выход)",
+            "  [blue]quit[/blue] - Выйти назад в предыдущию локацию"
         ):
             console.print(ch)
         self.choice = str(

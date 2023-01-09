@@ -20,3 +20,7 @@ def load_game(name):
             object = pickle.load(f)
         os.remove(f"saves/data/{name}.txt")
     return object
+
+def saves_list():
+    with zipfile.ZipFile("saves/data/dates.zip") as zf:
+        return [name.split(".")[0].lower() for name in zf.namelist()]
